@@ -5,6 +5,7 @@ import sys
 import pygame
 from pygame.locals import *
 from assets import *
+from pipe_factory import PipeFactory
 
 try:
     xrange
@@ -35,6 +36,13 @@ def main():
             pygame.image.load(PLAYERS_LIST[randPlayer][2]).convert_alpha(),
         )
 
+        # hitmask for player
+        HITMASKS['player'] = (
+            getHitmask(IMAGES['player'][0]),
+            getHitmask(IMAGES['player'][1]),
+            getHitmask(IMAGES['player'][2]),
+        )
+
         # select random pipe sprites
         pipeindex = random.randint(0, len(PIPES_LIST) - 1)
         IMAGES['pipe'] = (
@@ -48,15 +56,7 @@ def main():
             getHitmask(IMAGES['pipe'][1]),
         )
 
-        # hitmask for player
-        HITMASKS['player'] = (
-            getHitmask(IMAGES['player'][0]),
-            getHitmask(IMAGES['player'][1]),
-            getHitmask(IMAGES['player'][2]),
-        )
-
-        crashInfo = mainGame()
-        showGameOverScreen(crashInfo)
+        mainGame()
 
 
 def mainGame():
@@ -68,8 +68,8 @@ def mainGame():
     baseShift = IMAGES['base'].get_width() - IMAGES['background'].get_width()
 
     # get 2 new pipes to add to upperPipes lowerPipes list
-    newPipe1 = getRandomPipe()
-    newPipe2 = getRandomPipe()
+    newPipe1 = PipeFactory.getRandomPipe()
+    newPipe2 = PipeFactory.getRandomPipe()
 
     # list of upper pipes
     upperPipes = [
@@ -102,12 +102,8 @@ def mainGame():
             if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
                 pygame.quit()
                 sys.exit()
-            if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
-                if playery > -2 * IMAGES['player'][0].get_height():
-                    playerVelY = playerFlapAcc
-                    playerFlapped = True
-                    #SOUNDS['wing'].play()
 
+        #Flap?
         if random.random() > 0.9:
             if playery > -2 * IMAGES['player'][0].get_height():
                 playerVelY = playerFlapAcc
@@ -166,7 +162,7 @@ def mainGame():
 
         # add new pipe when first pipe is about to touch left of screen
         if 0 < upperPipes[0]['x'] < 5:
-            newPipe = getRandomPipe()
+            newPipe = PipeFactory.getRandomPipe()
             upperPipes.append(newPipe[0])
             lowerPipes.append(newPipe[1])
 
@@ -198,65 +194,6 @@ def mainGame():
         FPSCLOCK.tick(FPS)
 
 
-def showGameOverScreen(crashInfo):
-    """crashes the player down ans shows gameover image"""
-    score = crashInfo['score']
-    playerx = SCREENWIDTH * 0.2
-    playery = crashInfo['y']
-    playerHeight = IMAGES['player'][0].get_height()
-    playerVelY = crashInfo['playerVelY']
-    playerAccY = 2
-    playerRot = crashInfo['playerRot']
-    playerVelRot = 7
-
-    basex = crashInfo['basex']
-
-    upperPipes, lowerPipes = crashInfo['upperPipes'], crashInfo['lowerPipes']
-
-    # play hit and die sounds
-    SOUNDS['hit'].play()
-    if not crashInfo['groundCrash']:
-        SOUNDS['die'].play()
-
-    while True:
-        for event in pygame.event.get():
-            if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
-                pygame.quit()
-                sys.exit()
-            if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
-                if playery + playerHeight >= BASEY - 1:
-                    return
-
-        # player y shift
-        if playery + playerHeight < BASEY - 1:
-            playery += min(playerVelY, BASEY - playery - playerHeight)
-
-        # player velocity change
-        if playerVelY < 15:
-            playerVelY += playerAccY
-
-        # rotate only when it's a pipe crash
-        if not crashInfo['groundCrash']:
-            if playerRot > -90:
-                playerRot -= playerVelRot
-
-        # draw sprites
-        SCREEN.blit(IMAGES['background'], (0,0))
-
-        for uPipe, lPipe in zip(upperPipes, lowerPipes):
-            SCREEN.blit(IMAGES['pipe'][0], (uPipe['x'], uPipe['y']))
-            SCREEN.blit(IMAGES['pipe'][1], (lPipe['x'], lPipe['y']))
-
-        SCREEN.blit(IMAGES['base'], (basex, BASEY))
-        showScore(score)
-
-        playerSurface = pygame.transform.rotate(IMAGES['player'][1], playerRot)
-        SCREEN.blit(playerSurface, (playerx,playery))
-
-        FPSCLOCK.tick(FPS)
-        pygame.display.update()
-
-
 def playerShm(playerShm):
     """oscillates the value of playerShm['val'] between 8 and -8"""
     if abs(playerShm['val']) == 8:
@@ -266,20 +203,6 @@ def playerShm(playerShm):
          playerShm['val'] += 1
     else:
         playerShm['val'] -= 1
-
-
-def getRandomPipe():
-    """returns a randomly generated pipe"""
-    # y of gap between upper and lower pipe
-    gapY = random.randrange(0, int(BASEY * 0.6 - PIPEGAPSIZE))
-    gapY += int(BASEY * 0.2)
-    pipeHeight = IMAGES['pipe'][0].get_height()
-    pipeX = SCREENWIDTH + 10
-
-    return [
-        {'x': pipeX, 'y': gapY - pipeHeight},  # upper pipe
-        {'x': pipeX, 'y': gapY + PIPEGAPSIZE}, # lower pipe
-    ]
 
 
 def showScore(score):
