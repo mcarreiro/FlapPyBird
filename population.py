@@ -8,3 +8,6 @@ class Population:
 
     def selection(self):
         None
+
+    def alive(self):
+        return filter(lambda x: x.status == 'alive', self.birds)
