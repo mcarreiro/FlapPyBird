@@ -48,7 +48,7 @@ class Bird:
                 [random.uniform(-5, 5), random.uniform(-5, 5), random.uniform(-5, 5), random.uniform(-5, 5), random.uniform(-5, 5), random.uniform(-5, 5)],
             ],
 
-            # Matrix
+            # Matrix of output weights
             [
                 [random.uniform(-5, 5)],
                 [random.uniform(-5, 5)],
@@ -59,7 +59,13 @@ class Bird:
             ]
         ]
 
-        self.nn.intercepts_ = [[random.uniform(-5, 5), random.uniform(-5, 5), random.uniform(-5, 5), random.uniform(-5, 5), random.uniform(-5, 5), random.uniform(-5, 5)], [random.uniform(-5, 5)]]
+        self.nn.intercepts_ = [
+            # Hidden layer biases
+            [random.uniform(-5, 5), random.uniform(-5, 5), random.uniform(-5, 5), random.uniform(-5, 5), random.uniform(-5, 5), random.uniform(-5, 5)],
+
+            # Output bias
+            [random.uniform(-5, 5)]
+        ]
 
 
     def is_alive(self):
