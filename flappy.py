@@ -96,22 +96,16 @@ def mainGame():
                 sys.exit()
 
         for bird in POPULATION.birds:
-            if bird.flap():
+            if bird.should_flap(1,2):
                 if bird.y > -2 * IMAGES['player'][0].get_height():
                     bird.velY = playerFlapAcc
 
             # check for crash here
             if checkCrash(bird, playerIndex, upperPipes, lowerPipes)[0]:
-                bird.status = 'dead'
+                bird.dead()
 
         if len(POPULATION.alive()) == 0:
             return
-
-            # playerIndex basex change
-        if (loopIter + 1) % 3 == 0:
-            playerIndex = next(playerIndexGen)
-        loopIter = (loopIter + 1) % 30
-        basex = -((-basex + 100) % baseShift)
 
         # move pipes to left
         for uPipe, lPipe in zip(upperPipes, lowerPipes):
