@@ -48,7 +48,7 @@ class Bird:
                 [random.uniform(-5, 5), random.uniform(-5, 5), random.uniform(-5, 5), random.uniform(-5, 5), random.uniform(-5, 5), random.uniform(-5, 5)],
             ],
 
-            # Matrix of output weights
+            # Matrix of output weights (size of hidden layer)
             [
                 [random.uniform(-5, 5)],
                 [random.uniform(-5, 5)],
