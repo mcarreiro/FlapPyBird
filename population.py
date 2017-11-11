@@ -1,9 +1,10 @@
 from bird import Bird
+from numpy import inf
 import random
 
 class Population:
 
-    GOOD_THRESHOLD = 0
+    GOOD_THRESHOLD = -inf
 
     def __init__(self, size):
         self.birds = []
@@ -20,16 +21,14 @@ class Population:
         # All selection to the next generation
         new_birds.extend(selection)
 
-        # crossover 7
+        # crossover 6
         random.choice(selection)
 
         self.birds = new_birds
 
     def create_generation(self):
         for i in xrange(self.size):
-            self.birds.append(
-                Bird(i)
-            )
+            self.birds.append(Bird(i))
 
     def selection(self):
         good_birds = filter(lambda x: x.fitness > self.GOOD_THRESHOLD, self.birds)

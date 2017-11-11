@@ -79,14 +79,14 @@ def mainGame():
 
     # list of upper pipes
     upperPipes = [
-        {'x': SCREENWIDTH + 200, 'y': newPipe1[0]['y']},
-        {'x': SCREENWIDTH + 200 + (SCREENWIDTH / 2), 'y': newPipe2[0]['y']},
+        {'x': SCREENWIDTH, 'y': newPipe1[0]['y']},
+        {'x': SCREENWIDTH + (SCREENWIDTH / 2), 'y': newPipe2[0]['y']},
     ]
 
     # list of lowerpipe
     lowerPipes = [
-        {'x': SCREENWIDTH + 200, 'y': newPipe1[1]['y']},
-        {'x': SCREENWIDTH + 200 + (SCREENWIDTH / 2), 'y': newPipe2[1]['y']},
+        {'x': SCREENWIDTH, 'y': newPipe1[1]['y']},
+        {'x': SCREENWIDTH + (SCREENWIDTH / 2), 'y': newPipe2[1]['y']},
     ]
 
     while True:
@@ -96,9 +96,14 @@ def mainGame():
                 sys.exit()
 
         for bird in POPULATION.birds:
-            if bird.should_flap(1,2):
+            distance_to_next_pipe = float(lowerPipes[0]['x'] - bird.x) / SCREENWIDTH
+            pipe_hole = float((lowerPipes[0]['y']) - (PIPEGAPSIZE / 2)) / SCREENHEIGHT
+            distance_to_pipe_hole = float(pipe_hole - bird.y) / SCREENHEIGHT
+            if bird.should_flap(distance_to_next_pipe, distance_to_pipe_hole):
                 if bird.y > -2 * IMAGES['player'][0].get_height():
                     bird.velY = playerFlapAcc
+
+                bird.score -= pipeVelX
 
             # check for crash here
             if checkCrash(bird, playerIndex, upperPipes, lowerPipes)[0]:
@@ -208,6 +213,8 @@ def checkCrash(bird, playerIndex, upperPipes, lowerPipes):
 
     # if player crashes into ground
     if player['y'] + player['h'] >= BASEY - 1:
+        return [True, True]
+    elif player['y'] <= 0:
         return [True, True]
     else:
 
